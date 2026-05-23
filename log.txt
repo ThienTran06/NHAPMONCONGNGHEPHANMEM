@@ -1,0 +1,73 @@
+MVVM Workflow
+
+```mermaid
+flowchart TD
+    U[User thao tac UI] --> V[View: XAML]
+
+    V -->|Binding Property| VM[ViewModel]
+    V -->|Command Binding| VM
+
+    VM -->|goi Application Service interface| AS[Application Service]
+    AS -->|Request / DTO| M1[Application DTOs]
+    AS -->|business rule| M2[Domain Entities / Enums]
+
+    AS -->|Repository / UnitOfWork abstraction| INF[Infrastructure]
+    INF -->|EF Core DbContext| DB[(SQL Server)]
+
+    DB --> INF
+    INF --> AS
+    AS -->|Result / DTO| VM
+
+    VM -->|INotifyPropertyChanged| V
+    VM -->|ObservableCollection update| V
+```
+
+Rule Trong Project
+
+```text
+View
+-> chi hien thi UI, Binding, Command
+-> khong xu ly nghiep vu
+-> khong goi Service/DbContext truc tiep
+
+ViewModel
+-> giu state UI
+-> xu ly command
+-> goi Application Service
+-> khong goi DormitoryDbContext
+
+Model
+-> Domain Entities: du lieu loi
+-> Application DTOs/Requests: du lieu dua qua ViewModel
+-> Infrastructure luu DB qua EF Core
+```
+
+Vi Du Rooms
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant View as RoomListView.xaml
+    participant VM as RoomListViewModel
+    participant Service as IRoomService / RoomService
+    participant Infra as Repository + DbContext
+    participant DB as SQL Server
+
+    User->>View: Click Refresh
+    View->>VM: LoadCommand
+    VM->>Service: GetRoomsAsync(RoomFilterRequest)
+    Service->>Infra: Query rooms
+    Infra->>DB: SELECT
+    DB-->>Infra: rows
+    Infra-->>Service: Room entities
+    Service-->>VM: PagedResult<RoomDto>
+    VM-->>View: Rooms changed
+    View-->>User: DataGrid refresh
+```
+
+Tom tat
+
+```text
+User -> View -> ViewModel -> Application Service -> Infrastructure -> DB
+DB -> Infrastructure -> Application Service -> ViewModel -> View
+```
