@@ -1,0 +1,2 @@
+-- Seed data placeholder. EF Core DbInitializer is the primary seed path.
+-- TODO: Add deterministic lookup data if seed requirements grow beyond app startup initialization.
